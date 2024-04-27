@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -15,7 +16,13 @@ func main() {
 		fmt.Print("Введите выражение: ")
 		input, _ := reader.ReadString('\n')
 		input = strings.TrimSpace(input)
-
+		if strings.Contains(input, "\" - \"") {
+			reg := regexp.MustCompile(`^"([^"]+)"`)
+			match := reg.FindString(input)
+			if match != "" {
+				input = strings.ReplaceAll(input, match, strings.ReplaceAll(match, " ", ""))
+			}
+		}
 		if strings.ToLower(input) == "exit" {
 			fmt.Print("Программа остановлена.")
 			break
@@ -55,7 +62,6 @@ func evalute(input string) (string, error) {
 		if len(tokens[0]) > 12 || len(tokens[2]) > 12 {
 			panic("не больше 10 символов")
 		}
-		tokens := strings.Split(input, "\"")
 		if tokens[0][0] == '"' && tokens[2][0] == '"' {
 			return strings.Replace(strings.Trim(tokens[0], "\""), strings.Trim(tokens[2], "\""), "", -1), nil
 		}
@@ -81,11 +87,7 @@ func evalute(input string) (string, error) {
 			panic("второй операнд должен быть числом от 1 до 10")
 		}
 		if tokens[0][0] == '"' {
-			//if len(strings.Trim(tokens[0], "\""))%n == 0 {
 			return strings.Trim(tokens[0], "\"")[:len(strings.Trim(tokens[0], "\""))/n], nil
-			/*} else {
-				panic("невозможно разделить строку на целое число частей")
-			}*/
 		}
 		panic("некорректные операнды для операции деления")
 	default:
